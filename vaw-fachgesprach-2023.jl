@@ -26,20 +26,21 @@ Physics-based models| Data-driven models
 Modern approaches to modelling include both data-driven and physics-based components.
 
 These components need to be calibrated to match observations and experimental data.
+
+<center>
+<img src="figures/PIANN.png" width="40%"/>
+
+<font size="4">Riel, B., Minchew, B., and Bischoff, T. "Data‐Driven Inference of the Mechanics of Slip Along Glacier Beds Using Physics‐Informed Neural Networks: Case Study on Rutford Ice Stream, Antarctica." _Journal of Advances in Modeling Earth Systems_ (2021).</font>
+</center>
 """
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
 md"""
 __The purpose of this talk is to explain in simple terms the state-of-the-art in model calibration, applicable to both physics-based and data-driven approaches, and combinations thereof.__
 
-<center><img src="figures/PIANN.png" width="40%"/></center>
+-----------------------------------------
 
-<font size="4">Riel, B., Minchew, B., and Bischoff, T. "Data‐Driven Inference of the Mechanics of Slip Along Glacier Beds Using Physics‐Informed Neural Networks: Case Study on Rutford Ice Stream, Antarctica." _Journal of Advances in Modeling Earth Systems_ (2021).</font>
-"""
-
-#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
-md"""
-## What is a model?
+## What is a model and how to calibrate it?
 
 A mapping between inputs $\boldsymbol{X}$ and outputs $\boldsymbol{Y}$ parametrised by $\boldsymbol{\lambda}$ (control):
 
@@ -50,26 +51,14 @@ $$
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
 md"""
-Examples:
+Examples are: 
+- 📈 Linear model
+- 🗻 PDE-based model
+- 🧠 ML-based model
 
-- Linear model: $U(\boldsymbol{X},\boldsymbol{\lambda}) = \boldsymbol{X}\boldsymbol{\lambda} + \boldsymbol{\varepsilon}$;
-- PDE-based model: $\mathcal{L}(U(\boldsymbol{X},\boldsymbol{\lambda})) = 0$, $\mathcal{L}$ — differential operator;
-- ML-based model: $U(\boldsymbol{X},\boldsymbol{\lambda})$ is the output of a neural network/decision tree/etc.
-"""
+We calibrate a model by finding $\boldsymbol{\lambda}$ that minimises the objective function $J(\boldsymbol{Y},\boldsymbol{Y}^\text{obs})$ encoding the deviation of the model from training data $\boldsymbol{Y}_\text{obs}$.
 
-#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
-md"""
-## How to calibrate a model?
-
-The goal is to find $\boldsymbol{\lambda}$ that minimises the deviation of the model from available data $\boldsymbol{Y}_\text{obs}$.
-
-We describe this deviation by introducing the objective function $J(\boldsymbol{Y},\boldsymbol{Y}^\text{obs})$.
-
-Important example is the root-mean-square-deviation (RMSD):
-
-$$
-    J(\boldsymbol{Y},\boldsymbol{Y}^\text{obs}) = \sqrt{\frac{1}{N}\sum_{i=1}^{N}\left(Y_i - Y^\text{obs}_i\right)^2}
-$$
+Important example is the root-mean-square-deviation (RMSD): $J(\boldsymbol{Y},\boldsymbol{Y}^\text{obs}) = \sqrt{\frac{1}{N}\sum_{i=1}^{N}\left(Y_i - Y^\text{obs}_i\right)^2}$
 """
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
@@ -81,27 +70,15 @@ md"""
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
 md"""
+## Introducing gradient descent
+
 We can reformulate the calibration problem as a minimisation problem:
 $\newcommand{\argmin}{\mathop{\mathrm{argmin}}\limits}$
 $$
 \boldsymbol{\lambda}_\mathrm{opt} = \argmin_\boldsymbol{\lambda} J\left(\boldsymbol{\lambda}\right)
 $$
 
-Sometimes, this minimum can be approximately discovered by:
-
-- Brute-force grid search in the parameter space
-- Expert-guided trial-and-error approach
-
-With growing dimensionality of problems (billions of degrees of freedom), _automated and efficient ways to calibrate the models are needed_.
-"""
-
-#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
-md"""
-## Introducing gradient descent
-
-Suggested first by Cauchy in 1847, the gradient descent method still remains one of the key building blocks in the model training algorithms.
-
-The idea of the method is to iteratively step in the direction opposite to the gradient of the objective function $J$ at the current point $\boldsymbol{\lambda}$:
+The idea of the method of gradient descent is to iteratively step in the direction opposite to the gradient of the objective function $J$ at the current point $\boldsymbol{\lambda}$:
 
 <table><tr>
 <td> 
@@ -115,8 +92,8 @@ where $\gamma$ is the step size.
 > 
 > 📖 __step size__ == __learning rate__
 </td>
-<td> <img src="figures/gradient_descent.gif" alt="Drawing" style="height: 300px;"/> </td>
-<td> <img src="figures/cauchy.jpg" alt="Drawing" style="height: 300px;"/> </td>
+<td> <img src="figures/gradient_descent.gif" alt="Drawing" style="height: 500px;"/> </td>
+<td> <img src="figures/cauchy.jpg" alt="Drawing" style="height: 500px;"/> </td>
 </tr></table>
 
 👉 Many of the ANN training algorithms are variations of the gradient descent method: SGD, AdaGrad, RMSProp, Adam, etc.
@@ -125,17 +102,24 @@ where $\gamma$ is the step size.
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
 md"""
-## Calculating the gradient of the objective function
+## Calculating the gradient of the objective function: adjoint method
 
-First, we eliminate the outputs $\boldsymbol{Y}$ from $J$ by substituting the model definition $U$. Then, we apply the chain rule of differentiation:
+- Eliminate the outputs $\boldsymbol{Y}$ from $J$ by substituting the model definition $U$ and apply the chain rule of differentiation;
+- If $\boldsymbol{U}$ is defined implicitly as the solution to the equation $\mathcal{L}(\boldsymbol{U},\boldsymbol{\lambda}) = 0$, expand the gradient of the objective function;
 
-<center>
-<img src="figures/gradient_sizes.png" width="30%"/>
-</center>
+<center><img src="figures/manual_adjoint.png" width="50%"></center>
 
-- If the size of $U$ is $N$, and the size of $\boldsymbol{\lambda}$ is $M$, naively computing the second term $\frac{\mathrm{d}U}{\mathrm{d}\boldsymbol{\lambda}}$ (Jacobian matrix) would require $N \times M$ model evaluations;
-- Deep learning ANNs feature billions of degrees of freedom and inputs ($M, N \sim 10^9$);
-- Model evaluations are expensive (especially if the model is defined by solution to the PDE).
+Solve in two steps:
+
+1. Get $\frac{\mathrm{d}J}{\mathrm{d}\boldsymbol{U}}\boldsymbol{A}^{-1}$ by solving once for the auxiliary variable $\boldsymbol{\Psi}$ (called _the adjoint variable_):
+$$
+\frac{\partial\mathcal{L}}{\partial\boldsymbol{U}}^\mathrm{T}\boldsymbol{\Psi} = \frac{\mathrm{d}J}{\mathrm{d}\boldsymbol{U}}^\mathrm{T}~,
+$$
+
+2. Compute the objective function gradient:
+$$
+\frac{\mathrm{d}J}{\mathrm{d}\boldsymbol{\lambda}} = \boldsymbol{\Psi}^\mathrm{T} \frac{\mathrm{d}\mathcal{L}}{\mathrm{d}\boldsymbol{\lambda}}~.
+$$
 """
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
@@ -150,29 +134,18 @@ md"""
 The JVP can be generated for us automatically!
 
 - Automatic differentiation (AD) recursively applies the chain rule to propagate gradients through the function calls;
-- Some languages (e.g. Julia) support _differentiable programming_, where AD is performed on a source level, but the code must be written in one language.
+- Some languages (e.g. Julia) support _differentiable programming_, where AD is performed on a source level.
+
+<center>
+<img src="figures/reverse_mode_ad_graph.png" width="30%">
+
+<font size="4">From [PaperspaceBlog](https://blog.paperspace.com/pytorch-101-understanding-graphs-and-automatic-differentiation/)</font>
+</center>
 """
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
 md"""
 > 📖 __reverse-mode automatic differentiation__ == __backpropagation__ == __adjoint method__
-"""
-
-#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
-md"""
-## Adjoint method
-
-Sometimes it is more efficient to manually perform some of the steps of the AD algorithm. If $\boldsymbol{U}$ is defined implicitly as the solution to the equation $\mathcal{L}(\boldsymbol{U},\boldsymbol{\lambda}) = 0$, we can expand the gradient of the objective function:
-
-<center><img src="figures/manual_adjoint.png" width="60%"></center>
-
-We can first get $\frac{\mathrm{d}J}{\mathrm{d}\boldsymbol{U}}\boldsymbol{A}^{-1}$ by solving once for the auxiliary variable $\boldsymbol{\Psi}$, and in the second step compute the objective function gradient:
-
-$$
-\frac{\partial\mathcal{L}}{\partial\boldsymbol{U}}^\mathrm{T}\boldsymbol{\Psi} = \frac{\mathrm{d}J}{\mathrm{d}\boldsymbol{U}}^\mathrm{T}, \quad \frac{\mathrm{d}J}{\mathrm{d}\boldsymbol{\lambda}} = \boldsymbol{\Psi}^\mathrm{T} \frac{\mathrm{d}\mathcal{L}}{\mathrm{d}\boldsymbol{\lambda}}~.
-$$
-
-Variable $\boldsymbol{\Psi}$ is called _the adjoint variable_.
 """
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
