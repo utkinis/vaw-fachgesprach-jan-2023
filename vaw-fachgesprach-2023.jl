@@ -161,7 +161,7 @@ U(\boldsymbol{X},\boldsymbol{\lambda}) = \boldsymbol{X} \boldsymbol{\lambda}~.
 $$
 """
 
-#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
+#nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
 md"""
 We import a visualisation package, `Plots.jl`:
 """
