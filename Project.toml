@@ -1,8 +1,3 @@
-name = "DemystifyAdjoint"
-uuid = "aee98509-f484-466e-9d5c-f82c18fcdbb9"
-authors = ["Ivan Utkin <iutkin@ethz.ch>"]
-version = "0.1.0"
-
 [deps]
 Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
