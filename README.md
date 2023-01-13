@@ -1,4 +1,4 @@
-Fachgespäch at VAW, 13.01.2023
+Fachgespräch at VAW, 13.01.2023
 ==============================
 
 Presentation material for the talk "Introduction to differential modelling: demystifying the adjoint method".
