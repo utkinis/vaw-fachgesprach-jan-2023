@@ -160,17 +160,6 @@ md"""
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
 md"""
-Some packages for AD:
-
-||||
-|--:|:--|:--|
-| <img src="figures/zygote_logo.png" style="height: 32px;"> | [Zygote.jl](https://fluxml.ai/Zygote.jl/)  | Julia  |
-| <img src="figures/enzyme_logo.svg" style="height: 32px;"> | [Enzyme.jl](https://enzyme.mit.edu/julia/) | Julia  |
-| <img src="figures/jax_logo.png" style="height: 32px;">    | [JAX](https://jax.readthedocs.io/) | Python |
-"""
-
-#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
-md"""
 ## Adjoint method
 
 Sometimes it is more efficient to manually perform some of the steps of the AD algorithm. If $\boldsymbol{U}$ is defined implicitly as the solution to the equation $\mathcal{L}(\boldsymbol{U},\boldsymbol{\lambda}) = 0$, we can expand the gradient of the objective function:
@@ -415,4 +404,17 @@ md"""
 <font size="4">Bolibar, J. et al. "Deep learning applied to glacier evolution modelling." _The Cryosphere_ (2020).</font>
 
 ### Thank you for your attention!
+"""
+
+#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
+md"""
+## Extras
+
+Some packages for AD:
+
+||||
+|--:|:--|:--|
+| <img src="figures/zygote_logo.png" style="height: 32px;"> | [Zygote.jl](https://fluxml.ai/Zygote.jl/)  | Julia  |
+| <img src="figures/enzyme_logo.svg" style="height: 32px;"> | [Enzyme.jl](https://enzyme.mit.edu/julia/) | Julia  |
+| <img src="figures/jax_logo.png" style="height: 32px;">    | [JAX](https://jax.readthedocs.io/) | Python |
 """
